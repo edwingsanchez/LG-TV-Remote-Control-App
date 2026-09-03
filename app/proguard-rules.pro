@@ -27,7 +27,7 @@
 -dontwarn org.conscrypt.OpenSSLProvider
 -dontwarn sun.security.x509.X509Key
 
--keep class com.github.heroslender.lgtvcontroller.** { *; }
+-keep class com.github.edwingsanchez.lgtvcontroller.** { *; }
 
 -keep class com.connectsdk.** { *; }
 
