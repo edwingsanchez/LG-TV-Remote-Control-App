@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
@@ -71,6 +72,7 @@ fun CIconButton(
         shape = shape,
         modifier = modifier,
         colors = colors,
+        contentPadding = PaddingValues(0.dp),
         onClick = onClick
     ) {
         if (color == null) {
@@ -104,6 +106,7 @@ fun CIconButton(
         shape = shape,
         modifier = modifier,
         colors = colors,
+        contentPadding = PaddingValues(0.dp),
         onClick = onClick
     ) {
         if (color == null) {
@@ -156,23 +159,24 @@ fun RowScope.VerticalControls(
     bottomButton: @Composable () -> Unit,
 ) {
     Surface(
-        shape = ButtonShape,
+        shape = RoundedCornerShape(32.dp),
         color = if (enabled) MaterialTheme.colorScheme.surfaceVariant else MaterialTheme.colorScheme.surface,
-        shadowElevation = 0.dp,
+        shadowElevation = 2.dp,
         modifier = modifier
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceBetween,
-            modifier = Modifier.padding(vertical = 8.dp)
+            modifier = Modifier.padding(vertical = 4.dp)
         ) {
             topButton()
 
             Text(
                 text = centerText.uppercase(),
-                modifier = Modifier.padding(vertical = 4.dp),
-                fontSize = 2.5.em,
-                color = if (enabled) MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f) else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
+                modifier = Modifier.padding(vertical = 2.dp),
+                fontSize = 2.2.em,
+                fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                color = if (enabled) MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f) else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
                 style = MaterialTheme.typography.labelSmall
             )
 

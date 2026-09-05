@@ -1,6 +1,7 @@
 package com.github.edwingsanchez.lgtvcontroller.ui.controller
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.draggable2D
 import androidx.compose.foundation.gestures.rememberDraggable2DState
@@ -52,6 +53,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.LocalTextStyle
@@ -79,6 +81,7 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
@@ -243,8 +246,8 @@ fun ControllerScreen(
                     Column(
                         verticalArrangement = Arrangement.spacedBy(ControlsSpacing),
                         modifier = Modifier
-                            .padding(start = 24.dp, end = 24.dp, top = 16.dp, bottom = 16.dp)
-                            .verticalScroll(rememberScrollState())
+                            .fillMaxSize()
+                            .padding(start = 24.dp, end = 24.dp, top = 16.dp, bottom = 8.dp)
                     ) {
                         var trackpadEnabled by remember { mutableStateOf(false) }
                         Header(
@@ -257,9 +260,8 @@ fun ControllerScreen(
                             navigateToDeviceList = navigateUp,
                         )
 
-                        Spacer(modifier = Modifier.height(12.dp))
-
                         Controls(
+                            modifier = Modifier.weight(1f),
                             trackpadEnabled = trackpadEnabled,
                             clickMouse = controllerUiState.clickMouse,
                             moveMouse = controllerUiState.moveMouse,
@@ -298,84 +300,82 @@ fun Header(
     powerOff: () -> Unit,
     navigateToDeviceList: () -> Unit,
 ) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    Row(
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
     ) {
-        Row(
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 12.dp),
-        ) {
-            PowerButton(hasPowerCapability, powerOff)
-
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier
-                    .weight(1f)
-                    .clickable(onClick = navigateToDeviceList)
+        // Power Button - Modern Circle
+        if (hasPowerCapability) {
+            FilledIconButton(
+                colors = IconButtonDefaults.filledIconButtonColors(
+                    containerColor = Color(0xFFE53935).copy(alpha = 0.15f),
+                    contentColor = Color(0xFFE53935)
+                ),
+                onClick = powerOff,
+                modifier = Modifier.size(52.dp)
             ) {
-                Text(
-                    text = deviceName ?: stringResource(string.controller_device),
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurface
+                Icon(
+                    painter = painterResource(R.drawable.baseline_power_24),
+                    contentDescription = stringResource(string.power_button),
+                    modifier = Modifier.size(28.dp)
                 )
+            }
+        } else {
+            Spacer(modifier = Modifier.size(52.dp))
+        }
+
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .weight(1f)
+                .clickable(onClick = navigateToDeviceList)
+        ) {
+            Text(
+                text = deviceName ?: stringResource(string.controller_device),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(
+                    modifier = Modifier
+                        .size(8.dp)
+                        .clip(CircleShape)
+                        .background(if (deviceName != null && deviceStatus == DeviceStatus.CONNECTED) Color(0xFF4CAF50) else Color.Gray)
+                )
+                Spacer(modifier = Modifier.width(6.dp))
                 Text(
                     text = if (deviceName == null) stringResource(string.controller_disconnected) else stringResource(deviceStatus.nameResId),
                     style = MaterialTheme.typography.bodySmall,
-                    color = if (deviceName == null) Color.Gray else Color(0xFF4CAF50)
-                )
-            }
-
-            FilledIconButton(
-                colors = IconButtonDefaults.filledIconButtonColors(
-                    containerColor = if (trackpadEnabled) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.surfaceVariant,
-                    contentColor = if (trackpadEnabled) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
-                ),
-                onClick = { setTrackpadEnabled(!trackpadEnabled) },
-                modifier = Modifier.size(48.dp)
-            ) {
-                Icon(
-                    imageVector = if (trackpadEnabled) Icons.Rounded.KeyboardAlt else MyIconPack.TrackpadInput,
-                    contentDescription = "Toggle Trackpad",
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                 )
             }
         }
-    }
-}
 
-@Composable
-fun PowerButton(
-    hasPowerCapability: Boolean,
-    powerOff: () -> Unit,
-) {
-    if (hasPowerCapability) {
+        // Trackpad Toggle - Modern Circle
         FilledIconButton(
             colors = IconButtonDefaults.filledIconButtonColors(
-                containerColor = Color(0xFFB71C1C),
-                contentColor = Color.White
+                containerColor = if (trackpadEnabled) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant,
+                contentColor = if (trackpadEnabled) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
             ),
-            onClick = powerOff,
-            modifier = Modifier.size(48.dp)
+            onClick = { setTrackpadEnabled(!trackpadEnabled) },
+            modifier = Modifier.size(52.dp)
         ) {
             Icon(
-                painter = painterResource(R.drawable.baseline_power_24),
-                contentDescription = stringResource(string.power_button),
+                imageVector = if (trackpadEnabled) Icons.Rounded.KeyboardAlt else MyIconPack.TrackpadInput,
+                contentDescription = "Toggle Trackpad",
+                modifier = Modifier.size(28.dp)
             )
         }
-    } else {
-        Spacer(modifier = Modifier.size(48.dp))
     }
 }
 
 @Composable
 fun ColumnScope.Controls(
+    modifier: Modifier = Modifier,
     trackpadEnabled: Boolean,
     clickMouse: () -> Unit,
     moveMouse: (Double, Double) -> Unit,
@@ -385,9 +385,9 @@ fun ColumnScope.Controls(
 ) {
     if (trackpadEnabled) {
         Card(
-            modifier = Modifier
+            modifier = modifier
                 .fillMaxWidth()
-                .height(400.dp)
+                .padding(vertical = 16.dp)
                 .draggable2D(
                     state = rememberDraggable2DState { delta ->
                         moveMouse(delta.x.toDouble(), delta.y.toDouble())
@@ -395,44 +395,59 @@ fun ColumnScope.Controls(
                 )
                 .clickable(onClick = clickMouse),
             shape = RoundedCornerShape(32.dp),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
+            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
         ) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text("TRACKPAD", color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f), style = MaterialTheme.typography.headlineLarge)
+                Text(
+                    "TRACKPAD",
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f),
+                    style = MaterialTheme.typography.headlineLarge,
+                    fontWeight = FontWeight.Black
+                )
             }
         }
     } else {
-        Column(verticalArrangement = Arrangement.spacedBy(1.dp)) {
-            // Main Control Group (Home, Vol, Ch, Settings)
+        Column(
+            modifier = modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            // Row 1: Rockers and Action buttons
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(ControlsSpacing)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 VolumeControls(
                     hasCapability = hasCapability,
                     executeButton = executeButton,
-                    modifier = Modifier.weight(1f).height(160.dp)
+                    modifier = Modifier.size(width = 64.dp, height = 170.dp)
                 )
 
                 Column(
-                    modifier = Modifier.weight(1f).height(160.dp),
-                    verticalArrangement = Arrangement.spacedBy(ControlsSpacing)
+                    modifier = Modifier.height(170.dp),
+                    verticalArrangement = Arrangement.SpaceEvenly,
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     CIconButton(
                         imageVector = Icons.AutoMirrored.Rounded.Input,
                         contentDescription = "Source",
                         enabled = hasCapability(DeviceControllerButton.SOURCE),
+                        shape = CircleShape,
                         iconSize = 32.dp,
-                        modifier = Modifier.weight(1f).fillMaxWidth(),
+                        modifier = Modifier.size(52.dp),
                         onClick = { executeButton(DeviceControllerButton.SOURCE) }
                     )
                     CIconButton(
                         imageVector = Icons.AutoMirrored.Rounded.VolumeOff,
                         contentDescription = "Mute",
                         enabled = hasCapability(DeviceControllerButton.MUTE),
+                        shape = CircleShape,
                         iconSize = 32.dp,
-                        modifier = Modifier.weight(1f).fillMaxWidth(),
+                        modifier = Modifier.size(52.dp),
                         onClick = { executeButton(DeviceControllerButton.MUTE) }
                     )
                 }
@@ -440,48 +455,62 @@ fun ColumnScope.Controls(
                 ChannelControls(
                     hasCapability = hasCapability,
                     executeButton = executeButton,
-                    modifier = Modifier.weight(1f).height(160.dp)
+                    modifier = Modifier.size(width = 64.dp, height = 170.dp)
                 )
             }
 
-            // D-Pad and Navigation
-            DPad(hasCapability, executeButton)
+            // Row 2: Integrated D-Pad
+            DPad(
+                modifier = Modifier
+                    .size(260.dp)
+                    .padding(16.dp),
+                hasCapability = hasCapability,
+                executeButton = executeButton
+            )
 
-            // Bottom Navigation (Back, Home, Settings, Exit)
+            // Row 3: Navigation Cluster
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically
             ) {
+                val navBtnMod = Modifier.size(52.dp)
                 CIconButton(
                     imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
                     contentDescription = "Back",
                     enabled = hasCapability(DeviceControllerButton.BACK),
+                    shape = CircleShape,
+                    modifier = navBtnMod,
                     iconSize = 32.dp,
-                    modifier = Modifier.size(72.dp),
                     onClick = { executeButton(DeviceControllerButton.BACK) }
                 )
                 CIconButton(
                     imageVector = Icons.Rounded.Home,
                     contentDescription = "Home",
                     enabled = hasCapability(DeviceControllerButton.HOME),
+                    shape = CircleShape,
+                    modifier = navBtnMod,
                     iconSize = 32.dp,
-                    modifier = Modifier.size(72.dp),
                     onClick = { executeButton(DeviceControllerButton.HOME) }
                 )
                 CIconButton(
                     imageVector = Icons.Rounded.Settings,
                     contentDescription = "Settings",
                     enabled = hasCapability(DeviceControllerButton.QMENU),
+                    shape = CircleShape,
+                    modifier = navBtnMod,
                     iconSize = 32.dp,
-                    modifier = Modifier.size(72.dp),
                     onClick = { executeButton(DeviceControllerButton.QMENU) }
                 )
                 CIconButton(
                     imageVector = Icons.AutoMirrored.Rounded.ExitToApp,
                     contentDescription = "Exit",
                     enabled = hasCapability(DeviceControllerButton.EXIT),
+                    shape = CircleShape,
+                    modifier = navBtnMod,
                     iconSize = 32.dp,
-                    modifier = Modifier.size(72.dp),
                     onClick = { executeButton(DeviceControllerButton.EXIT) }
                 )
             }
@@ -491,104 +520,90 @@ fun ColumnScope.Controls(
 
 @Composable
 fun DPad(
+    modifier: Modifier = Modifier,
     hasCapability: (DeviceControllerButton) -> Boolean,
     executeButton: (DeviceControllerButton) -> Unit,
 ) {
-    val transparentColors = ButtonDefaults.buttonColors(
-        containerColor = Color.Transparent,
-        contentColor = Color.White,
-        disabledContainerColor = Color.Transparent,
-        disabledContentColor = Color.Gray
-    )
-
     Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .aspectRatio(1f)
-            .padding(48.dp),
+        modifier = modifier,
         contentAlignment = Alignment.Center
     ) {
-        // Outer D-Pad Ring Background
+        // Main D-Pad Ring
         Surface(
             modifier = Modifier.fillMaxSize(),
             shape = CircleShape,
-            color = MaterialTheme.colorScheme.surface,
-            shadowElevation = 0.dp
+            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+            border = androidx.compose.foundation.BorderStroke(2.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
         ) {}
 
-        // D-Pad Buttons in a centered layout
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            CIconButton(
-                imageVector = Icons.Rounded.KeyboardArrowUp,
-                contentDescription = "Up",
-                enabled = hasCapability(DeviceControllerButton.UP),
-                shape = CircleShape,
-                modifier = Modifier.size(72.dp),
-                iconSize = 56.dp,
-                colors = transparentColors,
-                onClick = { executeButton(DeviceControllerButton.UP) }
-            )
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                CIconButton(
-                    imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowLeft,
-                    contentDescription = "Left",
-                    enabled = hasCapability(DeviceControllerButton.LEFT),
-                    shape = CircleShape,
-                    modifier = Modifier.size(72.dp),
-                    iconSize = 56.dp,
-                    colors = transparentColors,
-                    onClick = { executeButton(DeviceControllerButton.LEFT) }
-                )
-
-                Spacer(modifier = Modifier.width(12.dp))
-
-                CTextButton(
-                    text = "OK",
+        // Center OK button
+        Surface(
+            modifier = Modifier
+                .fillMaxSize(0.4f)
+                .clickable(
                     enabled = hasCapability(DeviceControllerButton.OK),
-                    shape = CircleShape,
-                    modifier = Modifier.size(88.dp),
-                    fontSize = 5.5.em,
-                    colors = transparentColors,
                     onClick = { executeButton(DeviceControllerButton.OK) }
-                )
-
-                Spacer(modifier = Modifier.width(12.dp))
-
-                CIconButton(
-                    imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
-                    contentDescription = "Right",
-                    enabled = hasCapability(DeviceControllerButton.RIGHT),
-                    shape = CircleShape,
-                    modifier = Modifier.size(72.dp),
-                    iconSize = 56.dp,
-                    colors = transparentColors,
-                    onClick = { executeButton(DeviceControllerButton.RIGHT) }
+                ),
+            shape = CircleShape,
+            color = MaterialTheme.colorScheme.primaryContainer,
+            shadowElevation = 4.dp
+        ) {
+            Box(contentAlignment = Alignment.Center) {
+                Text(
+                    "OK",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer
                 )
             }
+        }
 
-            Spacer(modifier = Modifier.height(12.dp))
+        // Arrow Buttons
+        val arrowSize = 48.dp
+        val padding = 8.dp
 
-            CIconButton(
-                imageVector = Icons.Rounded.KeyboardArrowDown,
-                contentDescription = "Down",
-                enabled = hasCapability(DeviceControllerButton.DOWN),
-                shape = CircleShape,
-                modifier = Modifier.size(72.dp),
-                iconSize = 56.dp,
-                colors = transparentColors,
-                onClick = { executeButton(DeviceControllerButton.DOWN) }
-            )
+        IconButton(
+            onClick = { executeButton(DeviceControllerButton.UP) },
+            enabled = hasCapability(DeviceControllerButton.UP),
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .padding(top = padding)
+                .size(arrowSize)
+        ) {
+            Icon(Icons.Rounded.KeyboardArrowUp, "Up", modifier = Modifier.size(32.dp))
+        }
+
+        IconButton(
+            onClick = { executeButton(DeviceControllerButton.DOWN) },
+            enabled = hasCapability(DeviceControllerButton.DOWN),
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = padding)
+                .size(arrowSize)
+        ) {
+            Icon(Icons.Rounded.KeyboardArrowDown, "Down", modifier = Modifier.size(32.dp))
+        }
+
+        IconButton(
+            onClick = { executeButton(DeviceControllerButton.LEFT) },
+            enabled = hasCapability(DeviceControllerButton.LEFT),
+            modifier = Modifier
+                .align(Alignment.CenterStart)
+                .padding(start = padding)
+                .size(arrowSize)
+        ) {
+            Icon(Icons.AutoMirrored.Rounded.KeyboardArrowLeft, "Left", modifier = Modifier.size(32.dp))
+        }
+
+        IconButton(
+            onClick = { executeButton(DeviceControllerButton.RIGHT) },
+            enabled = hasCapability(DeviceControllerButton.RIGHT),
+            modifier = Modifier
+                .align(Alignment.CenterEnd)
+                .padding(end = padding)
+                .size(arrowSize)
+        ) {
+            Icon(Icons.AutoMirrored.Rounded.KeyboardArrowRight, "Right", modifier = Modifier.size(32.dp))
         }
     }
 }
@@ -605,24 +620,26 @@ fun RowScope.ChannelControls(
         modifier = modifier,
         enabled = isEnabled,
         topButton = {
-            CIconButton(
-                imageVector = Icons.Rounded.KeyboardArrowUp,
-                contentDescription = "Ch Up",
-                enabled = isEnabled,
-                iconSize = 32.dp,
-                modifier = Modifier.weight(1f).fillMaxWidth(),
-                onClick = { executeButton(DeviceControllerButton.CHANNEL_UP) }
-            )
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth()
+                    .clickable(enabled = isEnabled) { executeButton(DeviceControllerButton.CHANNEL_UP) },
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(Icons.Rounded.KeyboardArrowUp, "Ch Up", modifier = Modifier.size(28.dp))
+            }
         },
         bottomButton = {
-            CIconButton(
-                imageVector = Icons.Rounded.KeyboardArrowDown,
-                contentDescription = "Ch Down",
-                enabled = isEnabled,
-                iconSize = 32.dp,
-                modifier = Modifier.weight(1f).fillMaxWidth(),
-                onClick = { executeButton(DeviceControllerButton.CHANNEL_DOWN) }
-            )
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth()
+                    .clickable(enabled = isEnabled) { executeButton(DeviceControllerButton.CHANNEL_DOWN) },
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(Icons.Rounded.KeyboardArrowDown, "Ch Down", modifier = Modifier.size(28.dp))
+            }
         }
     )
 }
@@ -797,24 +814,26 @@ fun RowScope.VolumeControls(
         modifier = modifier,
         enabled = isEnabled,
         topButton = {
-            CIconButton(
-                imageVector = Icons.Rounded.KeyboardArrowUp,
-                contentDescription = "Vol Up",
-                enabled = isEnabled,
-                iconSize = 32.dp,
-                modifier = Modifier.weight(1f).fillMaxWidth(),
-                onClick = { executeButton(DeviceControllerButton.VOLUME_UP) }
-            )
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth()
+                    .clickable(enabled = isEnabled) { executeButton(DeviceControllerButton.VOLUME_UP) },
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(Icons.Rounded.KeyboardArrowUp, "Vol Up", modifier = Modifier.size(28.dp))
+            }
         },
         bottomButton = {
-            CIconButton(
-                imageVector = Icons.Rounded.KeyboardArrowDown,
-                contentDescription = "Vol Down",
-                enabled = isEnabled,
-                iconSize = 32.dp,
-                modifier = Modifier.weight(1f).fillMaxWidth(),
-                onClick = { executeButton(DeviceControllerButton.VOLUME_DOWN) }
-            )
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth()
+                    .clickable(enabled = isEnabled) { executeButton(DeviceControllerButton.VOLUME_DOWN) },
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(Icons.Rounded.KeyboardArrowDown, "Vol Down", modifier = Modifier.size(28.dp))
+            }
         }
     )
 }
