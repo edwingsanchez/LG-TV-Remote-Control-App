@@ -1,9 +1,11 @@
 package com.github.edwingsanchez.lgtvcontroller.ui.controller
 
 import android.content.res.Configuration
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
@@ -21,13 +23,14 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import com.github.edwingsanchez.lgtvcontroller.ui.theme.LGTVControllerTheme
 
-val ButtonShape = ShapeDefaults.Large
-val ControlsSpacing = 10.dp
+val ButtonShape = ShapeDefaults.ExtraLarge
+val ControlsSpacing = 6.dp
 
 @Composable
 fun CTextButton(
@@ -36,9 +39,16 @@ fun CTextButton(
     enabled: Boolean = true,
     shape: Shape = ButtonShape,
     fontSize: TextUnit = 3.7.em,
+    colors: ButtonColors? = null,
     onClick: () -> Unit = {},
 ) {
-    CButton(enabled = enabled, shape = shape, modifier = modifier, onClick = onClick) {
+    CButton(
+        enabled = enabled,
+        shape = shape,
+        modifier = modifier,
+        colors = colors,
+        onClick = onClick
+    ) {
         Text(text, fontSize = fontSize)
     }
 }
@@ -51,17 +61,25 @@ fun CIconButton(
     enabled: Boolean = true,
     shape: Shape = ButtonShape,
     useDefaultTint: Boolean = false,
+    colors: ButtonColors? = null,
+    iconSize: Dp = 32.dp,
     onClick: () -> Unit = {},
 ) {
     val color = if (useDefaultTint) Color.Unspecified else null
-    CButton(enabled = enabled, shape = shape, modifier = modifier, onClick = onClick) {
+    CButton(
+        enabled = enabled,
+        shape = shape,
+        modifier = modifier,
+        colors = colors,
+        onClick = onClick
+    ) {
         if (color == null) {
-            Icon(painterResource(iconId), contentDescription, modifier = Modifier.size(32.dp))
+            Icon(painterResource(iconId), contentDescription, modifier = Modifier.size(iconSize))
         } else {
             Icon(
                 painterResource(iconId),
                 contentDescription,
-                modifier = Modifier.size(32.dp),
+                modifier = Modifier.size(iconSize),
                 tint = color
             )
         }
@@ -76,17 +94,25 @@ fun CIconButton(
     enabled: Boolean = true,
     shape: Shape = ButtonShape,
     useDefaultTint: Boolean = false,
+    colors: ButtonColors? = null,
+    iconSize: Dp = 32.dp,
     onClick: () -> Unit = {},
 ) {
     val color = if (useDefaultTint) Color.Unspecified else null
-    CButton(enabled = enabled, shape = shape, modifier = modifier, onClick = onClick) {
+    CButton(
+        enabled = enabled,
+        shape = shape,
+        modifier = modifier,
+        colors = colors,
+        onClick = onClick
+    ) {
         if (color == null) {
-            Icon(imageVector = imageVector, contentDescription, modifier = Modifier.size(32.dp))
+            Icon(imageVector = imageVector, contentDescription, modifier = Modifier.size(iconSize))
         } else {
             Icon(
                 imageVector = imageVector,
                 contentDescription = contentDescription,
-                modifier = Modifier.size(32.dp),
+                modifier = Modifier.size(iconSize),
                 tint = color
             )
         }
@@ -99,6 +125,7 @@ fun CButton(
     enabled: Boolean = true,
     shape: Shape = ButtonShape,
     contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
+    colors: ButtonColors? = null,
     onClick: () -> Unit,
     content: @Composable RowScope.() -> Unit,
 ) {
@@ -108,12 +135,13 @@ fun CButton(
         enabled = enabled,
         shape = shape,
         contentPadding = contentPadding,
-        colors = ButtonColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer,
-            contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-            disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-            disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant
+        colors = colors ?: ButtonDefaults.buttonColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+            contentColor = MaterialTheme.colorScheme.onSurface,
+            disabledContainerColor = MaterialTheme.colorScheme.surface,
+            disabledContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
         ),
+        elevation = if (colors?.containerColor == Color.Transparent) null else ButtonDefaults.buttonElevation(defaultElevation = 0.dp),
         modifier = modifier,
         content = content
     )
@@ -129,16 +157,23 @@ fun RowScope.VerticalControls(
 ) {
     Surface(
         shape = ButtonShape,
-        color = if (enabled) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant,
+        color = if (enabled) MaterialTheme.colorScheme.surfaceVariant else MaterialTheme.colorScheme.surface,
+        shadowElevation = 0.dp,
         modifier = modifier
     ) {
-        Column {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier.padding(vertical = 8.dp)
+        ) {
             topButton()
 
             Text(
-                text = centerText,
-                modifier = Modifier.align(Alignment.CenterHorizontally),
-                fontSize = 3.em,
+                text = centerText.uppercase(),
+                modifier = Modifier.padding(vertical = 4.dp),
+                fontSize = 2.5.em,
+                color = if (enabled) MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f) else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
+                style = MaterialTheme.typography.labelSmall
             )
 
             bottomButton()

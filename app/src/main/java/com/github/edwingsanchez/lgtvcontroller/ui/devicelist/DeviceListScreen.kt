@@ -33,6 +33,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -133,15 +134,17 @@ fun DeviceListScreen(
     val devices by deviceListViewModel.uiState.collectAsState()
     val textInputState by deviceListViewModel.tvTextInputState.collectAsState()
 
-    deviceListViewModel.onDeviceConnected {
-        navigateToController()
+    LaunchedEffect(Unit) {
+        deviceListViewModel.navigationEvents.collect {
+            navigateToController()
+        }
     }
 
     ConnectedDeviceScaffold(
         errorFlow = deviceListViewModel.errors,
         textInputState = textInputState,
     ) {
-        SharedTransitionLayout() {
+        SharedTransitionLayout(Modifier.fillMaxSize()) {
             AnimatedContent(
                 devices.devices.isNotEmpty(),
                 label = "found devices transition"
@@ -163,6 +166,7 @@ fun DeviceListScreen(
         }
     }
 }
+
 
 @Composable
 fun NoDevices(
@@ -257,17 +261,10 @@ fun HasDevices(
             }
         }
 
-        devices.sortedWith { device1, device2 ->
-            return@sortedWith when {
-                !device1.isPoweredOn -> 1
-                !device2.isPoweredOn -> -1
-                device1.status.value == DeviceStatus.CONNECTED -> -1
-                device2.status.value == DeviceStatus.CONNECTED -> 1
-                else -> 0
-            }
-        }.forEach {
+        devices.forEach {
             DeviceItem(it, navigateToController)
         }
+
     }
 }
 
@@ -288,8 +285,9 @@ fun DeviceItem(
         onClick = {
             if (status == DeviceStatus.DISCONNECTED) {
                 deviceData.connect()
+            } else {
+                navigateToController()
             }
-            navigateToController()
         },
         modifier = Modifier
             .fillMaxWidth()
@@ -302,12 +300,16 @@ fun DeviceItem(
                     if (status != DeviceStatus.DISCONNECTED) R.drawable.baseline_connected_tv_24
                     else R.drawable.baseline_tv_24
                 ),
-                contentDescription = "contentDescription",
+                contentDescription = if (status != DeviceStatus.DISCONNECTED)
+                    stringResource(string.device_list_connected)
+                else
+                    stringResource(string.device_list_disconnected),
                 modifier = Modifier
                     .size(32.dp)
                     .align(Alignment.CenterVertically),
                 tint = if (deviceData.isPoweredOn) onlineTVColor() else offlineTVColor(),
             )
+
 
             Column(modifier = Modifier.padding(start = 15.dp)) {
                 Text(deviceData.displayName)

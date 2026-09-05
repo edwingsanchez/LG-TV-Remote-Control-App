@@ -41,6 +41,7 @@ fun ConnectedDeviceScaffold(
     errorFlow: Flow<Snackbar>,
     textInputState: TvTextInputState,
     topBar: @Composable () -> Unit = {},
+    bottomBar: @Composable () -> Unit = {},
     content: @Composable () -> Unit,
 ) {
     val stackedSnackbarHostState = rememberStackedSnackbarHostState()
@@ -85,6 +86,8 @@ fun ConnectedDeviceScaffold(
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = topBar,
+        bottomBar = bottomBar,
+        containerColor = MaterialTheme.colorScheme.background,
         floatingActionButtonPosition = FabPosition.Center,
         floatingActionButton = {
             AnimatedVisibility(textInputState.isKeyboardOpen) {

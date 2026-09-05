@@ -10,7 +10,6 @@ import androidx.navigation.navArgument
 import com.github.edwingsanchez.lgtvcontroller.ui.controller.ControllerScreen
 import com.github.edwingsanchez.lgtvcontroller.ui.devicelist.DeviceListScreen
 import com.github.edwingsanchez.lgtvcontroller.ui.editor.TvEditScreen
-import com.github.edwingsanchez.lgtvcontroller.ui.home.HomeScreen
 
 @Composable
 fun ControllerNavHost(
@@ -25,7 +24,7 @@ fun ControllerNavHost(
         composable(NavDest.DeviceList.route) {
             DeviceListScreen(
                 navigateToController = {
-                    navController.navigate(NavDest.Home.route) {
+                    navController.navigate(NavDest.Controller.route) {
                         popUpTo(NavDest.DeviceList.route) {
                             inclusive = false
                         }
@@ -36,31 +35,20 @@ fun ControllerNavHost(
             )
         }
 
-        composable(NavDest.Home.route) {
-            HomeScreen(
-                navigateToDeviceList = {
+        composable(NavDest.Controller.route) {
+            ControllerScreen(
+                navigateUp = {
                     navController.navigate(NavDest.DeviceList.route) {
-                        popUpTo(NavDest.Home.route) {
+                        popUpTo(NavDest.Controller.route) {
                             inclusive = true
                         }
 
                         launchSingleTop = true
                     }
                 },
-                navigateToController = {
-                    navController.navigate(NavDest.Controller.route)
-                },
                 navigateToEditDevice = {
                     navController.navigate("${NavDest.EditDevice.route}/$it")
-                },
-            )
-        }
-
-        composable(NavDest.Controller.route) {
-            ControllerScreen(
-                navigateUp = {
-                    navController.navigate(NavDest.Home.route)
-                },
+                }
             )
         }
 

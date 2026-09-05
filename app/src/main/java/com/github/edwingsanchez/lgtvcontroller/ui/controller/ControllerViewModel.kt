@@ -24,13 +24,18 @@ class ControllerViewModel @Inject constructor(
 
             device.state.map { deviceState ->
                 ControllerUiState(
+                    deviceID = device.id,
                     deviceName = if (deviceState.displayName.isNullOrEmpty()) device.friendlyName else deviceState.displayName,
                     deviceStatus = deviceState.status,
+                    apps = deviceState.apps,
+                    inputs = deviceState.inputs,
+                    runningApp = deviceState.runningApp,
                     clickMouse = device::mouseClick,
                     moveMouse = { x, y -> device.moveMouse(x, y) },
                     scroll = { x, y -> device.scroll(x, y) },
                     hasCapability = { device.hasCapability(it) },
                     executeButton = { device.executeControllerButton(it) },
+                    launchApp = device::launchApp,
                 )
             }
         }.stateIn(viewModelScope, SharingStarted.Eagerly, ControllerUiState())
