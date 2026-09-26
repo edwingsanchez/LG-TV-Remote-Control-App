@@ -14,12 +14,17 @@ android {
     defaultConfig {
         applicationId = "com.github.edwingsanchez.lgtvcontroller"
         minSdk = 30
-        targetSdk = 34
+        targetSdk = 36
 
-        versionCode = 13
+        versionCode = 14
         versionName = "0.5.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    androidResources {
+        // Filtra los idiomas soportados para excluir recursos no válidos de librerías de terceros (ej. 'fl' en ConnectSDK)
+        localeFilters += listOf("en", "es")
     }
 
     buildTypes {
