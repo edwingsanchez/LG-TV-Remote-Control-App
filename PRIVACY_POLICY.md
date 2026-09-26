@@ -76,5 +76,5 @@ Podemos actualizar nuestra Política de Privacidad periódicamente para reflejar
 
 Si tiene alguna pregunta o duda con respecto a esta Política de Privacidad o el manejo de datos en la aplicación, puede ponerse en contacto con nosotros a través de:
 
-* **Correo electrónico de soporte:** `[TU_CORREO_DE_SOPORTE@DOMINIO.COM]`
+* **Correo electrónico de soporte:** `emslvirtual@gmail.com`
 * **Desarrollador:** Edwing Sánchez
